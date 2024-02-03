@@ -29,14 +29,14 @@ export const execute = async () => {
     privateKeyArray = JSON.parse(process.env.PRIVATE_KEY);
   } catch (error) {
     throw new Error(
-      "Error parsing PRIVATE_KEY. Please make sure it is a stringified array"
+      "Error parsing PRIVATE_KEY. Please make sure it is a stringified array",
     );
   }
 
   let traderKeypair = Keypair.fromSecretKey(new Uint8Array(privateKeyArray));
 
   const marketPubkey = new PublicKey(
-    "4DoNfFBfF7UokCC2FQzriy7yHK6DY6NVdYpuekQ5pRgg"
+    "4DoNfFBfF7UokCC2FQzriy7yHK6DY6NVdYpuekQ5pRgg",
   );
   const endpoint = "https: //api.mainnet-beta.solana.com";
   const connection = new Connection(endpoint);
@@ -55,7 +55,7 @@ export const execute = async () => {
   const setupNewMakerIxs = await phoenixSdk.getMakerSetupInstructionsForMarket(
     connection,
     marketState,
-    traderKeypair.publicKey
+    traderKeypair.publicKey,
   );
 
   if (setupNewMakerIxs.length !== 0) {
@@ -67,7 +67,7 @@ export const execute = async () => {
       {
         skipPreflight: true,
         commitment: "confirmed",
-      }
+      },
     );
     console.log(`Setup Tx Link: https://beta.solscan.io/tx/${setupTxId}`);
   } else {
@@ -78,7 +78,7 @@ export const execute = async () => {
     // Before quoting, we cancel all outstanding orders
     const cancelAll = client.createCancelAllOrdersInstruction(
       marketPubkey.toString(),
-      traderKeypair.publicKey
+      traderKeypair.publicKey,
     );
     // Note we could bundle this with the place order transaction below, but we choose to cancel
     // separately since getting the price could take a non-deterministic amount of time
@@ -91,7 +91,7 @@ export const execute = async () => {
         {
           skipPreflight: true,
           commitment: "confirmed",
-        }
+        },
       );
 
       console.log("Cancel tx link: https://beta.solscan.io/tx/" + txid);
@@ -105,7 +105,7 @@ export const execute = async () => {
     try {
       // Get current SOL price from Coinbase
       const response = await fetch(
-        "https://api.coinbase.com/v2/prices/SOL-USD/spot"
+        "https://api.coinbase.com/v2/prices/SOL-USD/spot",
       );
       const data = await response.json();
 
@@ -138,7 +138,7 @@ export const execute = async () => {
       const bidLimitOrderIx = client.getLimitOrderInstructionfromTemplate(
         marketPubkey.toBase58(),
         traderKeypair.publicKey,
-        bidOrderTemplate
+        bidOrderTemplate,
       );
 
       const askOrderTemplate: phoenixSdk.LimitOrderTemplate = {
@@ -155,7 +155,7 @@ export const execute = async () => {
       const askLimitOrderIx = client.getLimitOrderInstructionfromTemplate(
         marketPubkey.toBase58(),
         traderKeypair.publicKey,
-        askOrderTemplate
+        askOrderTemplate,
       );
 
       let instructions: TransactionInstruction[] = [];
@@ -176,7 +176,7 @@ export const execute = async () => {
             withdrawFundsParams: withdrawParams,
           },
           marketPubkey.toString(),
-          traderKeypair.publicKey
+          traderKeypair.publicKey,
         );
         instructions.push(placeWithdraw);
       }
@@ -192,14 +192,14 @@ export const execute = async () => {
           {
             skipPreflight: true,
             commitment: "confirmed",
-          }
+          },
         );
 
         console.log(
           "Place quotes",
           bidPrice.toFixed(marketState.getPriceDecimalPlaces()),
           "@",
-          askPrice.toFixed(marketState.getPriceDecimalPlaces())
+          askPrice.toFixed(marketState.getPriceDecimalPlaces()),
         );
         console.log(`Tx link: https://solscan.io/tx/${placeQuotesTxId}`);
       } catch (err) {
